@@ -99,7 +99,27 @@ def index():
     print("Distribution Version:", dist_version)
     print("Distribution ID:", dist_id)
 
+    ########################### Disk ############################################
+    partitions = psutil.disk_partitions(all=False)
 
+    print("----- Partitions -----")
+    for partition in partitions:
+      print(f"Device: {partition.device}")
+      print(f"Mountpoint: {partition.mountpoint}")
+      print(f"File System Type: {partition.fstype}")
+      print(f"Mount Options: {partition.opts}")
+
+    disk = psutil.disk_usage("/")
+    per_usage_disk = disk.percent
+    free_disk = humanize.naturalsize(disk.free)
+    used_disk = humanize.naturalsize(disk.used)
+    total_disk = humanize.naturalsize(disk.total)
+
+    print("\nDisk Usage:")
+    print(f"Percentage Used: {per_usage_disk}%")
+    print(f"Free Space: {free_disk}")
+    print(f"Used Space: {used_disk}")
+    print(f"Total Space: {total_disk}")
 
 
 
