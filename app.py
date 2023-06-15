@@ -1,16 +1,16 @@
-import psutil
-import humanize
-import datetime
-from flask import Flask
-import platform
-import subprocess
-import distro
+import humanize, datetime
+from flask import Flask, jsonify
+from flask_cors import CORS
+import platform, subprocess, distro , psutil
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route("/")
-def index():
+#@app.route("/")
+#def index():
 
+@app.route("/cpu", methods=['GET'])
+def get_cpu_info():
     ######################### CPU #########################
     # cpu var
     cpu_usage = psutil.cpu_percent(interval=1)
@@ -19,13 +19,18 @@ def index():
     cpu_per = psutil.cpu_percent(interval=1, percpu=True)
     main_core = cpu_per.index(max( cpu_per ))
     freq = psutil.cpu_freq().current
-    # cpu print
-    print (f"CPU Usage: {cpu_usage}%" )
-    print (f"Freqency: {freq} Mhz")
-    print(f"CPU cores: {cpu_count}")
-    print(f"Physical cores: {cpu_count_physique}")
-    print(f"Main CPU Core: {main_core}")
+    # cpu 
+    cpu_info = {
+    "CPU Usage": cpu_usage,
+    "Freqency Mhz": freq,
+    "CPU cores": cpu_count,
+    "Physical cores": cpu_count_physique,
+    "Main CPU Core": main_core}
 
+    return jsonify(cpu_info)
+
+@app.route("/memory", methods=['GET'])
+def get_memory_info():
     ######################### Memory #########################
     # memory var 
     memory =psutil.virtual_memory()
@@ -35,12 +40,17 @@ def index():
     usage_per = memory.percent
     available_per = round ( (memory.available / memory.total)* 100 ,1)
     # memory print 
-    print(f"Total Memory: {total}")
-    print(f"Available Memory: {available}")
-    print(f"Used Memory: {used}")
-    print(f"Available Memory per: {available_per}%")
-    print(f"Used Memory per: {usage_per}%")
+    memory_info = {
+    "Total Memory": total,
+    "Available Memory": available,
+    "Used Memory": used,
+    "Available Memory per %": available_per,
+    "Used Memory per % " : usage_per}
 
+    return jsonify(memory_info)
+
+@app.route("/battery", methods=['GET'])
+def get_battery_info():
     ######################### Battery #########################
     # battery var
     battery = psutil.sensors_battery()
@@ -51,26 +61,54 @@ def index():
     Charging_time = " N/A "
     # battery print
     if battery is None:
-        Status = "Not Available"
+        Status = "Not Available"  
+        battery_info ={
+            "Battery Percentage ": " N/A ",
+            "Plugged in ": " N/A ",
+            "Charging time": " N/A ",
+            "Remaining time " : " N/A ",
+            "Status" : Status
+        }
     else :
-        print(f"Battery Percentage: {percent}%")
-        print(f"Plugged in: {plugged}")
+        #print(f"Battery Percentage: {percent}%")
+        #print(f"Plugged in: {plugged}")
         if plugged :
-            print(f"Charging time: {Charging_time}")
+            #print(f"Charging time: {Charging_time}")
             if percent < 100 :
                 Status = "Currently charging"
             if percent == 0 :
                 Status = "Dead"
             else :
                 Status = "Fully charged"
+            battery_info ={
+            "Battery Percentage ": percent,
+            "Plugged in ": plugged,
+            "Charging time": Charging_time,
+            "Remaining time " : " N/A ",
+            "Status" : Status }
         else :
             if percent < 100 :
-                print(f"Remaining time : {time_left}")
+                #print(f"Remaining time : {time_left}")
                 Status = "Discharging"
+                battery_info ={
+                "Battery Percentage ": percent,
+                "Plugged in ": plugged,
+                "Charging time": Charging_time,
+                "Remaining time " : time_left,
+                "Status" : Status }
             else :
                 Status = "Fully charged"
-    print (f"Status: {Status}")
+                battery_info ={
+                "Battery Percentage ": percent,
+                "Plugged in ": plugged,
+                "Charging time": Charging_time,
+                "Remaining time " : " N/A ",
+                "Status" : Status }
+    #print (f"Status: {Status}")
+    return jsonify(battery_info)
 
+@app.route("/general", methods=['GET'])
+def get_general_info():
     ######################### General System information #########################
     # var
     system_platform = platform.system()
@@ -78,7 +116,7 @@ def index():
     operating_system = platform.uname().system
     operating_system_release = platform.uname().release
     system_date = datetime.date.today()
-    system_time = datetime.datetime.now().time()
+    system_time = datetime.datetime.now().time().strftime('%H:%M:%S')
     processor_info = subprocess.check_output("cat /proc/cpuinfo | grep 'model name' | uniq | awk -F ':' '{print $2}'",
                                          shell=True).decode().strip()
 
@@ -88,26 +126,35 @@ def index():
     dist_id = dist_info[2]
 
     # print 
-    print(f"System Platform: {system_platform}")
-    print(f"System Architecture: {system_architecture}")
-    print(f"Operating System: {operating_system}")
-    print(f"Operating System Release: {operating_system_release}")
-    print(f"System Date: {system_date}")
-    print(f"System Time: {system_time}")
-    print(f"Processor: {processor_info}")
-    print("Distribution Name:", dist_name)
-    print("Distribution Version:", dist_version)
-    print("Distribution ID:", dist_id)
+    system_info = {
+    "System Platform": system_platform,
+    "System Architecture": system_architecture,
+    "Operating System": operating_system,
+    "Operating System Release": operating_system_release,
+    "System Date": system_date,
+    "System Time": system_time,
+    "Processor": processor_info,
+    "Distribution Name": dist_name,
+    "Distribution Version": dist_version,
+    "Distribution ID": dist_id }
 
+    return jsonify (system_info)
+
+@app.route("/disk", methods=['GET'])
+def get_disk_info():
     ########################### Disk ############################################
     partitions = psutil.disk_partitions(all=False)
+    partition_dict={}
+    partition_info=[]
 
-    print("----- Partitions -----")
+    #print("----- Partitions -----")
     for partition in partitions:
-      print(f"Device: {partition.device}")
-      print(f"Mountpoint: {partition.mountpoint}")
-      print(f"File System Type: {partition.fstype}")
-      print(f"Mount Options: {partition.opts}")
+        partition_dict = {
+        "Device": partition.device,
+        "Mountpoint": partition.mountpoint,
+        "File System Type": partition.fstype,
+        "Mount Options": partition.opts}
+        partition_info.append(partition_dict)
 
     disk = psutil.disk_usage("/")
     per_usage_disk = disk.percent
@@ -115,15 +162,13 @@ def index():
     used_disk = humanize.naturalsize(disk.used)
     total_disk = humanize.naturalsize(disk.total)
 
-    print("\nDisk Usage:")
-    print(f"Percentage Used: {per_usage_disk}%")
-    print(f"Free Space: {free_disk}")
-    print(f"Used Space: {used_disk}")
-    print(f"Total Space: {total_disk}")
+    disk_usage_info = {
+    "Percentage Used": per_usage_disk,
+    "Free Space": free_disk,
+    "Used Space": used_disk,
+    "Total Space": total_disk}
 
-
-
-    return("ok")
+    return jsonify(partition_info,disk_usage_info)
 
 
 if __name__ == '__main__':
