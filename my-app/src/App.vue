@@ -10,7 +10,7 @@
       </ul>
     </nav>
 
-    <div v-show="currentTab === 'cpu'">
+    <div v-show="currentTab === 'cpu'"  class="champ">
       <h2>CPU Info</h2>
       <p>CPU Usage: {{ cpuInfo?.['CPU Usage'] }}%</p>
       <p>Freqency: {{cpuInfo?.['Freqency Mhz'] }} Mhz</p>
@@ -19,7 +19,7 @@
       <p>Main CPU Core: CPU_{{ cpuInfo?.['Main CPU Core'] }}</p>
     </div>
 
-    <div v-show="currentTab === 'memory'">
+    <div v-show="currentTab === 'memory'" class="champ">
       <h2>Memory Info</h2>
       <p>Total Memory: {{ memoryInfo?.['Total Memory'] }}</p>
       <p>Available Memory: {{ memoryInfo?.['Available Memory'] }}</p>
@@ -28,7 +28,7 @@
       <p> Used Memory percent: {{ memoryInfo?.['Used Memory per % '] }}%</p>
     </div>
 
-    <div v-show="currentTab === 'battery'">
+    <div v-show="currentTab === 'battery'" class="champ">
       <h2>Battery Info</h2>
       <p>Battery Percentage: {{ batteryInfo?.['Battery Percentage '] }}%</p>
       <p>Battery Charging: {{ batteryInfo?.['Plugged in '] ? 'Yes' : 'No' }}</p>
@@ -37,7 +37,7 @@
       <p>Status: {{ batteryInfo?.['Status'] }}</p>
     </div>
 
-    <div v-show="currentTab === 'general'">
+    <div v-show="currentTab === 'general'" class="champ">
       <h2>General System Info</h2>
       <p>System Platform: {{ generalInfo?.['System Platform'] }}</p>
       <p>System Architecture: {{ generalInfo?.['System Architecture'] }}</p>
@@ -53,19 +53,97 @@
 
     <div v-show="currentTab === 'disk'">
       <h2>Disk Info</h2>
-      <div v-for="(partition, index) in diskInfo.partitionInfo" :key="index">
-        <p>Device: {{ partition.Device }}</p>
-        <p>Mountpoint: {{ partition.Mountpoint }}</p>
-        <p>File System Type: {{ partition['File System Type'] }}</p>
-        <p>Mount Options: {{ partition['Mount Options'] }}</p>
-      </div>
+      <div  class="champ">
       <p>Percentage Used: {{ diskInfo.diskUsageInfo?.['Percentage Used'] }}%</p>
       <p>Free Space: {{ diskInfo.diskUsageInfo?.['Free Space'] }}</p>
       <p>Used Space: {{ diskInfo.diskUsageInfo?.['Used Space'] }}</p>
       <p>Total Space: {{ diskInfo.diskUsageInfo?.['Total Space'] }}</p>
+      </div>
+      <div class="row">
+    <div class="col">
+      <div class="partition-info" v-for="(partition, index) in diskInfo.partitionInfo" :key="index">
+        <div class="row">
+          <div class="col-6">Device:<span> {{ partition.Device }}</span></div>
+        </div>
+        <div class="row">
+          <div class="col-6">Mountpoint:<span> {{ partition.Mountpoint }}</span> </div>
+        </div>
+        <div class="row">
+          <div class="col-6">File System Type:<span> {{ partition['File System Type'] }}</span></div>
+        </div>
+        <div class="row">
+          <div class="col-6">Mount Options:<span> {{ partition['Mount Options'] }}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
     </div>
   </div>
 </template>
+
+<style>
+.container {
+  font-family: Arial, sans-serif;
+}
+nav {
+  background-color: rgba(115, 149, 174, 0.5);;
+  display: flex;
+  justify-content: center;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+justify-content: center;
+}
+
+li {
+  padding: 10px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+li:hover {
+  background-color: #557A95;
+  color: white;
+}
+
+
+h2 {
+  margin-top: 50px;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #557A95;
+}
+
+p {
+  margin: 10px 0;
+}
+
+.partition-info {
+  background-color: rgba(177, 162, 150, 0.15);
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.partition-info .row {
+  margin-bottom: 5px;
+}
+span{
+color: #5D5C61;
+}
+.champ {
+  text-align:center;
+ margin-bottom: 15px;
+}
+
+</style>
+
 
 <script>
 import axios from 'axios';

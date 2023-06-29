@@ -115,7 +115,7 @@ def get_general_info():
     system_architecture = platform.machine()
     operating_system = platform.uname().system
     operating_system_release = platform.uname().release
-    system_date = datetime.date.today()
+    system_date = datetime.date.today().strftime('%Y-%m-%d')
     system_time = datetime.datetime.now().time().strftime('%H:%M:%S')
     processor_info = subprocess.check_output("cat /proc/cpuinfo | grep 'model name' | uniq | awk -F ':' '{print $2}'",
                                          shell=True).decode().strip()
