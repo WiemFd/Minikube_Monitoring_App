@@ -113,7 +113,7 @@ li:hover {
 
 
 h2 {
-  margin-top: 50px;
+  margin-top: 51px;
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 20px;

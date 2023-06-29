@@ -11,7 +11,7 @@ CORS(app)
 
 @app.route("/cpu", methods=['GET'])
 def get_cpu_info():
-    ######################### CPU #########################
+    ########################## CPU #########################
     # cpu var
     cpu_usage = psutil.cpu_percent(interval=1)
     cpu_count = psutil.cpu_count()

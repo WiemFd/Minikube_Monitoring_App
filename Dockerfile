@@ -1,5 +1,5 @@
 #STEP 1 BUILD VUE PROJECT
-FROM node:20.3.0-alpine AS build
+FROM node:20.3.0-alpine AS build-stage
 WORKDIR /app
 COPY package.json ./
 RUN npm install 
